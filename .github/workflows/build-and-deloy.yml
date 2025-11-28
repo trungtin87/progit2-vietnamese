@@ -40,7 +40,7 @@ jobs:
           # CHÚ Ý QUAN TRỌNG: SỬA LẠI LỆNH NÀY CHO PHÙ HỢP VỚI DỰ ÁN CỦA BẠN
           # -----------------------------------------------------------------
           # Lệnh giả định (thay 'index.asc' bằng tên file AsciiDoc chính của bạn)
-          asciidoctor index.asc -o _site/index.html
+          asciidoctor progit.asc -o _site/index.html
           
           # Nếu cần, copy các tài nguyên tĩnh (CSS, JS, ảnh) vào thư mục _site
           # cp -r assets _site/
