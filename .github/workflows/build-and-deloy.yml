@@ -1,53 +1,62 @@
-name: Build and Deploy Pro Git Book
+name: Build and Deploy AsciiDoc to Pages
+
+# 1. Kích hoạt Action khi có push lên nhánh main, hoặc chạy thủ công
 on:
   push:
     branches:
-      - main # Chạy action mỗi khi có code mới được đẩy lên nhánh 'main'
-  workflow_dispatch: # Cho phép bạn chạy action thủ công từ trang Actions
+      - main
+  workflow_dispatch:
+
+# Cần thiết lập quyền để Action có thể triển khai lên GitHub Pages
+permissions:
+  contents: read
+  pages: write 
+  id-token: write 
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout code
+      # 2. Checkout code nguồn
       - name: Checkout Source Code
         uses: actions/checkout@v4
         
-      # 2. Setup Ruby (Yêu cầu để cài Asciidoctor)
-      - name: Setup Ruby
+      # 3. Setup Ruby (Yêu cầu để cài Asciidoctor)
+      - name: Setup Ruby Environment
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.x' # Sử dụng phiên bản Ruby ổn định
+          ruby-version: '3.x' 
           bundler-cache: true 
 
-      # 3. Cài đặt Asciidoctor và các Gem liên quan
-      - name: Install Asciidoctor and Dependencies
+      # 4. Cài đặt Asciidoctor (Qua RubyGems)
+      - name: Install Asciidoctor
+        run: gem install asciidoctor asciidoctor-pdf # Cài thêm asciidoctor-pdf nếu cần
+
+      # 5. Build AsciiDoc thành HTML
+      - name: Build AsciiDoc to HTML
         run: |
-          gem install asciidoctor
-          # Nếu dự án có Gemfile, bạn nên chạy: bundle install
+          mkdir _site
+          # -----------------------------------------------------------------
+          # CHÚ Ý QUAN TRỌNG: SỬA LẠI LỆNH NÀY CHO PHÙ HỢP VỚI DỰ ÁN CỦA BẠN
+          # -----------------------------------------------------------------
+          # Lệnh giả định (thay 'index.asc' bằng tên file AsciiDoc chính của bạn)
+          asciidoctor index.asc -o _site/index.html
           
-      # 4. Build AsciiDoc thành HTML
-      - name: Build HTML Output
-        run: |
-          # Giả định file đầu vào là 'progit-vi.asc' và đầu ra là thư mục 'site'
-          # Tùy thuộc vào cấu trúc dự án Pro Git 2 của bạn, lệnh này có thể khác
-          asciidoctor -r asciidoctor-pdf -o index.html index.adoc
-          # Hoặc nếu dự án dùng cấu trúc nhiều file:
-          # Thường cần một script Ruby/Bash để build toàn bộ cuốn sách
-          # Ví dụ: sh build.sh
-          # Bạn cần kiểm tra lại lệnh build chính xác trong repository gốc của Pro Git 2.
+          # Nếu cần, copy các tài nguyên tĩnh (CSS, JS, ảnh) vào thư mục _site
+          # cp -r assets _site/
           
-      # 5. Thiết lập quyền ghi để Deploy
+      # 6. Thiết lập môi trường GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 6. Upload các file đã build
-      - name: Upload Artifacts
+      # 7. Upload Artifact (Sản phẩm HTML đã Build)
+      # Chỉ định chính xác thư mục đã build (_site)
+      - name: Upload Deployment Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './' # Thay bằng thư mục chứa HTML đã build, ví dụ: './_site'
+          path: './_site' 
           
-      # 7. Deploy lên GitHub Pages
+      # 8. Deploy lên GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
