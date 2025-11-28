@@ -43,7 +43,7 @@ jobs:
           asciidoctor progit.asc -o _site/index.html
           
           # Nếu cần, copy các tài nguyên tĩnh (CSS, JS, ảnh) vào thư mục _site
-          # cp -r assets _site/
+           cp -r images _site/
           
       # 6. Thiết lập môi trường GitHub Pages
       - name: Setup Pages
